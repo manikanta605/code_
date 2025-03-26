@@ -40,6 +40,10 @@ class labelCreationdetials(BaseModel):
     label:str
     color:str
     
+class logindetials(BaseModel):
+    username:str
+    password:str
+    
 class jsonCreationdetials(BaseModel):
     file_name:str
     json_text_1:str
@@ -339,21 +343,27 @@ async def txt_read(request: FolderPathRequest):
         conn = get_db_connection()
         cursor = conn.cursor()
         
+        person_id = 1  # Start with person ID 1
         for txt_file in txt_files:
             file_path = os.path.join(root_input, txt_file)
             with open(file_path, 'r') as file:
                 lines = file.readlines()
-                print(lines)
+                
             for line in lines:
                 try:
-                    # Assuming the table has a column named 'content' to store the text
-                    cursor.execute("INSERT INTO txt_data (content) VALUES (%s)", (line.strip(),))
+                    # Assign the current person ID and insert into the database
+                    cursor.execute(
+                        "INSERT INTO txt_data (content, person_id) VALUES (%s, %s)",
+                        (line.strip(), person_id)
+                    )
+                    # Cycle person ID between 1 and 5
+                    person_id = person_id + 1 if person_id < 5 else 1
                 except Exception as e:
                     conn.rollback()
                     raise HTTPException(status_code=500, detail=f"Error inserting line from {txt_file}: {str(e)}")
         
         conn.commit()
-        return {"message": "All text files processed and data inserted successfully."}
+        return {"message": "All text files processed and data inserted successfully with person IDs."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during the process: {str(e)}")
     finally:
@@ -361,7 +371,66 @@ async def txt_read(request: FolderPathRequest):
             cursor.close()
         if 'conn' in locals():
             conn.close()
+            
+            
+@app.post("/login")
+async def login(request:logindetials):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        query = "SELECT * FROM login  where username = '"+request.username+"' and password = '"+request.password+"';"
+        cursor.execute(query)
+        records = cursor.fetchall()
+        
+        colnames = [desc[0] for desc in cursor.description]
+        result = [dict(zip(colnames, record)) for record in records]
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred during the process: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+        
+@app.get("/get_data/{id}")
+async def get_data(id:str):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        query = "SELECT * FROM txt_data  where person_id = '"+id+"';"
+        cursor.execute(query)
+        records = cursor.fetchall()
+        
+        colnames = [desc[0] for desc in cursor.description]
+        result = [dict(zip(colnames, record)) for record in records]
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred during the process: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
 
+# Function to insert PDF conversion results into the database
+def get_user_detials(label, color):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(
+            "INSERT INTO tbl_label ( label, color) VALUES (%s, %s)",
+            (label, color)
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Error inserting PDF conversion data: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+        
 
 
 
