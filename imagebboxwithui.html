@@ -1,0 +1,1354 @@
+<div class="container">
+  <input 
+    type="text" 
+    value="INVOICE"
+    (input)="searchInImage($event)" 
+    (click)="onInputClick($event)" 
+    placeholder="Search text"
+  />
+  <input type="text" value ="" (keyup)="searchInImage($event)" placeholder="Enter text to search" />
+
+  <div class="image-container">
+    <canvas #canvas></canvas>
+    
+  </div>
+
+  <!-- <img src="./../../../assets/modern.png"/> -->
+</div>
+
+
+
+import { Component, ElementRef, ViewChild } from '@angular/core';
+
+@Component({
+    selector: 'app-help',
+    templateUrl: './help.component.html',
+    styleUrls: ['./help.component.scss'],
+    standalone: false
+})
+export class HelpComponent {
+    searchInfoextracted:any;
+    @ViewChild('canvas', { static: false }) canvas!: ElementRef<HTMLCanvasElement>;
+  searchText: string = 'INVOICE ID';
+  searchText1: string = 'romashka';
+  imageSrc: string = './../../../assets/modern.png'; // Replace with your image
+  ctx!: CanvasRenderingContext2D;
+  detectedWords: any[] = [];
+
+  ngAfterViewInit() {
+    this.loadImage();
+    // this.extractTextFromImage();
+    this.detectedWords = this.testing()
+  }
+
+  loadImage() {
+    const canvas = this.canvas.nativeElement;
+    this.ctx = canvas.getContext('2d')!;
+    const img = new Image();
+    img.src = this.imageSrc;
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      this.ctx.drawImage(img, 0, 0);
+    };
+  }
+
+ 
+
+  searchInImage(e: any) {
+    const searchValue = e.target.value.trim().toLowerCase();
+
+    // Clear canvas and redraw the image
+    const img = new Image();
+    img.src = this.imageSrc;
+    img.onload = () => {
+        const canvas = this.canvas.nativeElement;
+        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.ctx.drawImage(img, 0, 0);
+
+        if (!searchValue) return; // If input is empty, don't highlight
+
+        this.detectedWords.forEach(word => {
+            if (word.text.toLowerCase().includes(searchValue)) {
+                const x = word.bbox[0][0]; // Top-left X
+                const y = word.bbox[0][1]; // Top-left Y
+                const width = word.bbox[1][0] - word.bbox[0][0]; // Width from x1 - x0
+                const height = word.bbox[2][1] - word.bbox[0][1]; // Height from y1 - y0
+
+                this.ctx.fillStyle = 'rgba(255, 255, 0, 0.5)'; // Yellow transparent highlight
+                this.ctx.fillRect(x, y, width, height);
+            }
+        });
+    };
+}
+
+onInputClick(e: any) {
+    this.searchInImage(e); // Trigger highlighting when the input field is clicked
+}
+
+  highlightText(word: any) {
+   
+}
+
+
+  testing(){
+   return this.searchInfoextracted = [
+        {
+            "text": " RedmineCRM",
+            "bbox": [
+                [
+                    57,
+                    41
+                ],
+                [
+                    228,
+                    44
+                ],
+                [
+                    227,
+                    67
+                ],
+                [
+                    57,
+                    65
+                ]
+            ],
+            "confidence": 0.9575996994972229
+        },
+        {
+            "text": "RedmineCRM",
+            "bbox": [
+                [
+                    381,
+                    42
+                ],
+                [
+                    465,
+                    42
+                ],
+                [
+                    465,
+                    56
+                ],
+                [
+                    381,
+                    56
+                ]
+            ],
+            "confidence": 0.9964045286178589
+        },
+        {
+            "text": "Company representative name",
+            "bbox": [
+                [
+                    379,
+                    56
+                ],
+                [
+                    543,
+                    57
+                ],
+                [
+                    543,
+                    71
+                ],
+                [
+                    379,
+                    70
+                ]
+            ],
+            "confidence": 0.995323657989502
+        },
+        {
+            "text": "Your company address",
+            "bbox": [
+                [
+                    378,
+                    69
+                ],
+                [
+                    504,
+                    70
+                ],
+                [
+                    504,
+                    87
+                ],
+                [
+                    378,
+                    86
+                ]
+            ],
+            "confidence": 0.9999152421951294
+        },
+        {
+            "text": "Tax ID",
+            "bbox": [
+                [
+                    379,
+                    85
+                ],
+                [
+                    418,
+                    85
+                ],
+                [
+                    418,
+                    100
+                ],
+                [
+                    379,
+                    100
+                ]
+            ],
+            "confidence": 0.9847614169120789
+        },
+        {
+            "text": "phone:",
+            "bbox": [
+                [
+                    379,
+                    100
+                ],
+                [
+                    420,
+                    100
+                ],
+                [
+                    420,
+                    114
+                ],
+                [
+                    379,
+                    114
+                ]
+            ],
+            "confidence": 0.9940850734710693
+        },
+        {
+            "text": "fax:",
+            "bbox": [
+                [
+                    378,
+                    114
+                ],
+                [
+                    402,
+                    114
+                ],
+                [
+                    402,
+                    128
+                ],
+                [
+                    378,
+                    128
+                ]
+            ],
+            "confidence": 0.9818993806838989
+        },
+        {
+            "text": "\"Romashka Ltd.",
+            "bbox": [
+                [
+                    56,
+                    165
+                ],
+                [
+                    143,
+                    165
+                ],
+                [
+                    143,
+                    179
+                ],
+                [
+                    56,
+                    179
+                ]
+            ],
+            "confidence": 0.9358291625976562
+        },
+        {
+            "text": "Invoice ID:",
+            "bbox": [
+                [
+                    377,
+                    156
+                ],
+                [
+                    448,
+                    156
+                ],
+                [
+                    448,
+                    173
+                ],
+                [
+                    377,
+                    173
+                ]
+            ],
+            "confidence": 0.9989578127861023
+        },
+        {
+            "text": "INV/20111209-22",
+            "bbox": [
+                [
+                    519,
+                    156
+                ],
+                [
+                    621,
+                    156
+                ],
+                [
+                    621,
+                    170
+                ],
+                [
+                    519,
+                    170
+                ]
+            ],
+            "confidence": 0.9961932301521301
+        },
+        {
+            "text": "1600 Amphitheatre Parkway Mountain View, CA 94043",
+            "bbox": [
+                [
+                    55,
+                    181
+                ],
+                [
+                    343,
+                    181
+                ],
+                [
+                    343,
+                    194
+                ],
+                [
+                    55,
+                    194
+                ]
+            ],
+            "confidence": 0.9667813777923584
+        },
+        {
+            "text": "Invoice date:",
+            "bbox": [
+                [
+                    377,
+                    177
+                ],
+                [
+                    462,
+                    179
+                ],
+                [
+                    461,
+                    196
+                ],
+                [
+                    377,
+                    194
+                ]
+            ],
+            "confidence": 0.9981733560562134
+        },
+        {
+            "text": "12/08/2011",
+            "bbox": [
+                [
+                    519,
+                    179
+                ],
+                [
+                    585,
+                    179
+                ],
+                [
+                    585,
+                    193
+                ],
+                [
+                    519,
+                    193
+                ]
+            ],
+            "confidence": 0.999052882194519
+        },
+        {
+            "text": "Due date:",
+            "bbox": [
+                [
+                    379,
+                    201
+                ],
+                [
+                    442,
+                    201
+                ],
+                [
+                    442,
+                    217
+                ],
+                [
+                    379,
+                    217
+                ]
+            ],
+            "confidence": 0.9810144901275635
+        },
+        {
+            "text": "12/25/2012",
+            "bbox": [
+                [
+                    519,
+                    200
+                ],
+                [
+                    587,
+                    200
+                ],
+                [
+                    587,
+                    216
+                ],
+                [
+                    519,
+                    216
+                ]
+            ],
+            "confidence": 0.9997509121894836
+        },
+        {
+            "text": "Text custom field:",
+            "bbox": [
+                [
+                    378,
+                    220
+                ],
+                [
+                    493,
+                    221
+                ],
+                [
+                    493,
+                    238
+                ],
+                [
+                    378,
+                    237
+                ]
+            ],
+            "confidence": 0.9996272325515747
+        },
+        {
+            "text": "Visible field in PDF",
+            "bbox": [
+                [
+                    519,
+                    223
+                ],
+                [
+                    628,
+                    223
+                ],
+                [
+                    628,
+                    237
+                ],
+                [
+                    519,
+                    237
+                ]
+            ],
+            "confidence": 0.9771556854248047
+        },
+        {
+            "text": "INVOICE",
+            "bbox": [
+                [
+                    301,
+                    295
+                ],
+                [
+                    399,
+                    295
+                ],
+                [
+                    399,
+                    316
+                ],
+                [
+                    301,
+                    316
+                ]
+            ],
+            "confidence": 0.9936904311180115
+        },
+        {
+            "text": "#",
+            "bbox": [
+                [
+                    55,
+                    346
+                ],
+                [
+                    65,
+                    346
+                ],
+                [
+                    65,
+                    357
+                ],
+                [
+                    55,
+                    357
+                ]
+            ],
+            "confidence": 0.9979017972946167
+        },
+        {
+            "text": "Description",
+            "bbox": [
+                [
+                    77,
+                    342
+                ],
+                [
+                    147,
+                    344
+                ],
+                [
+                    147,
+                    361
+                ],
+                [
+                    76,
+                    359
+                ]
+            ],
+            "confidence": 0.997626543045044
+        },
+        {
+            "text": "Qty",
+            "bbox": [
+                [
+                    384,
+                    341
+                ],
+                [
+                    409,
+                    344
+                ],
+                [
+                    407,
+                    361
+                ],
+                [
+                    382,
+                    358
+                ]
+            ],
+            "confidence": 0.9956371188163757
+        },
+        {
+            "text": "Units",
+            "bbox": [
+                [
+                    428,
+                    344
+                ],
+                [
+                    460,
+                    344
+                ],
+                [
+                    460,
+                    359
+                ],
+                [
+                    428,
+                    359
+                ]
+            ],
+            "confidence": 0.9977748990058899
+        },
+        {
+            "text": "Unit price (EUR)",
+            "bbox": [
+                [
+                    477,
+                    345
+                ],
+                [
+                    570,
+                    345
+                ],
+                [
+                    570,
+                    359
+                ],
+                [
+                    477,
+                    359
+                ]
+            ],
+            "confidence": 0.9676169753074646
+        },
+        {
+            "text": "Total (EUR)",
+            "bbox": [
+                [
+                    582,
+                    345
+                ],
+                [
+                    649,
+                    345
+                ],
+                [
+                    649,
+                    359
+                ],
+                [
+                    582,
+                    359
+                ]
+            ],
+            "confidence": 0.9825651049613953
+        },
+        {
+            "text": "1",
+            "bbox": [
+                [
+                    53,
+                    370
+                ],
+                [
+                    65,
+                    370
+                ],
+                [
+                    65,
+                    383
+                ],
+                [
+                    53,
+                    383
+                ]
+            ],
+            "confidence": 0.99931800365448
+        },
+        {
+            "text": "Projecting",
+            "bbox": [
+                [
+                    78,
+                    367
+                ],
+                [
+                    134,
+                    370
+                ],
+                [
+                    134,
+                    385
+                ],
+                [
+                    77,
+                    382
+                ]
+            ],
+            "confidence": 0.9975854158401489
+        },
+        {
+            "text": "x1.0",
+            "bbox": [
+                [
+                    382,
+                    370
+                ],
+                [
+                    410,
+                    370
+                ],
+                [
+                    410,
+                    384
+                ],
+                [
+                    382,
+                    384
+                ]
+            ],
+            "confidence": 0.9333233833312988
+        },
+        {
+            "text": "hours",
+            "bbox": [
+                [
+                    425,
+                    370
+                ],
+                [
+                    459,
+                    370
+                ],
+                [
+                    459,
+                    384
+                ],
+                [
+                    425,
+                    384
+                ]
+            ],
+            "confidence": 0.9955549240112305
+        },
+        {
+            "text": "50.00",
+            "bbox": [
+                [
+                    537,
+                    367
+                ],
+                [
+                    571,
+                    370
+                ],
+                [
+                    570,
+                    385
+                ],
+                [
+                    536,
+                    382
+                ]
+            ],
+            "confidence": 0.9971399307250977
+        },
+        {
+            "text": "50.00",
+            "bbox": [
+                [
+                    616,
+                    367
+                ],
+                [
+                    651,
+                    370
+                ],
+                [
+                    649,
+                    386
+                ],
+                [
+                    615,
+                    383
+                ]
+            ],
+            "confidence": 0.9984482526779175
+        },
+        {
+            "text": "- Context menu for invoices list",
+            "bbox": [
+                [
+                    79,
+                    384
+                ],
+                [
+                    242,
+                    384
+                ],
+                [
+                    242,
+                    398
+                ],
+                [
+                    79,
+                    398
+                ]
+            ],
+            "confidence": 0.9964152574539185
+        },
+        {
+            "text": "2",
+            "bbox": [
+                [
+                    55,
+                    412
+                ],
+                [
+                    65,
+                    412
+                ],
+                [
+                    65,
+                    423
+                ],
+                [
+                    55,
+                    423
+                ]
+            ],
+            "confidence": 0.9979064464569092
+        },
+        {
+            "text": "Develop",
+            "bbox": [
+                [
+                    77,
+                    409
+                ],
+                [
+                    125,
+                    411
+                ],
+                [
+                    124,
+                    426
+                ],
+                [
+                    76,
+                    424
+                ]
+            ],
+            "confidence": 0.9976627230644226
+        },
+        {
+            "text": "x17.0",
+            "bbox": [
+                [
+                    380,
+                    411
+                ],
+                [
+                    413,
+                    411
+                ],
+                [
+                    413,
+                    425
+                ],
+                [
+                    380,
+                    425
+                ]
+            ],
+            "confidence": 0.9719001054763794
+        },
+        {
+            "text": "hours",
+            "bbox": [
+                [
+                    425,
+                    411
+                ],
+                [
+                    459,
+                    411
+                ],
+                [
+                    459,
+                    426
+                ],
+                [
+                    425,
+                    426
+                ]
+            ],
+            "confidence": 0.998136043548584
+        },
+        {
+            "text": "40.00",
+            "bbox": [
+                [
+                    537,
+                    410
+                ],
+                [
+                    571,
+                    410
+                ],
+                [
+                    571,
+                    425
+                ],
+                [
+                    537,
+                    425
+                ]
+            ],
+            "confidence": 0.9985501170158386
+        },
+        {
+            "text": "680.00",
+            "bbox": [
+                [
+                    611,
+                    411
+                ],
+                [
+                    650,
+                    411
+                ],
+                [
+                    650,
+                    425
+                ],
+                [
+                    611,
+                    425
+                ]
+            ],
+            "confidence": 0.998284637928009
+        },
+        {
+            "text": "- Invoice number format template",
+            "bbox": [
+                [
+                    79,
+                    426
+                ],
+                [
+                    253,
+                    426
+                ],
+                [
+                    253,
+                    439
+                ],
+                [
+                    79,
+                    439
+                ]
+            ],
+            "confidence": 0.9629056453704834
+        },
+        {
+            "text": "-[PRO] Duplicating invoices",
+            "bbox": [
+                [
+                    79,
+                    440
+                ],
+                [
+                    228,
+                    440
+                ],
+                [
+                    228,
+                    453
+                ],
+                [
+                    79,
+                    453
+                ]
+            ],
+            "confidence": 0.964174747467041
+        },
+        {
+            "text": "-Language support",
+            "bbox": [
+                [
+                    79,
+                    455
+                ],
+                [
+                    183,
+                    455
+                ],
+                [
+                    183,
+                    468
+                ],
+                [
+                    79,
+                    468
+                ]
+            ],
+            "confidence": 0.9718608856201172
+        },
+        {
+            "text": "- Context menu for invoices list",
+            "bbox": [
+                [
+                    79,
+                    468
+                ],
+                [
+                    242,
+                    468
+                ],
+                [
+                    242,
+                    481
+                ],
+                [
+                    79,
+                    481
+                ]
+            ],
+            "confidence": 0.9840936064720154
+        },
+        {
+            "text": "3",
+            "bbox": [
+                [
+                    55,
+                    496
+                ],
+                [
+                    65,
+                    496
+                ],
+                [
+                    65,
+                    506
+                ],
+                [
+                    55,
+                    506
+                ]
+            ],
+            "confidence": 0.9976590871810913
+        },
+        {
+            "text": "Analysis",
+            "bbox": [
+                [
+                    78,
+                    494
+                ],
+                [
+                    125,
+                    494
+                ],
+                [
+                    125,
+                    508
+                ],
+                [
+                    78,
+                    508
+                ]
+            ],
+            "confidence": 0.9988231062889099
+        },
+        {
+            "text": "x3.0",
+            "bbox": [
+                [
+                    382,
+                    494
+                ],
+                [
+                    409,
+                    494
+                ],
+                [
+                    409,
+                    509
+                ],
+                [
+                    382,
+                    509
+                ]
+            ],
+            "confidence": 0.9640291333198547
+        },
+        {
+            "text": "hours",
+            "bbox": [
+                [
+                    425,
+                    494
+                ],
+                [
+                    459,
+                    494
+                ],
+                [
+                    459,
+                    509
+                ],
+                [
+                    425,
+                    509
+                ]
+            ],
+            "confidence": 0.9976949691772461
+        },
+        {
+            "text": "35.00",
+            "bbox": [
+                [
+                    537,
+                    494
+                ],
+                [
+                    571,
+                    494
+                ],
+                [
+                    571,
+                    509
+                ],
+                [
+                    537,
+                    509
+                ]
+            ],
+            "confidence": 0.9983220100402832
+        },
+        {
+            "text": "105.00",
+            "bbox": [
+                [
+                    611,
+                    494
+                ],
+                [
+                    650,
+                    494
+                ],
+                [
+                    650,
+                    509
+                ],
+                [
+                    611,
+                    509
+                ]
+            ],
+            "confidence": 0.9989766478538513
+        },
+        {
+            "text": "-[PRO] Duplicating invoices",
+            "bbox": [
+                [
+                    79,
+                    508
+                ],
+                [
+                    227,
+                    508
+                ],
+                [
+                    227,
+                    522
+                ],
+                [
+                    79,
+                    522
+                ]
+            ],
+            "confidence": 0.9603002071380615
+        },
+        {
+            "text": "- Language support",
+            "bbox": [
+                [
+                    78,
+                    522
+                ],
+                [
+                    184,
+                    523
+                ],
+                [
+                    184,
+                    537
+                ],
+                [
+                    78,
+                    536
+                ]
+            ],
+            "confidence": 0.9424943923950195
+        },
+        {
+            "text": "Sub total:",
+            "bbox": [
+                [
+                    380,
+                    564
+                ],
+                [
+                    441,
+                    564
+                ],
+                [
+                    441,
+                    578
+                ],
+                [
+                    380,
+                    578
+                ]
+            ],
+            "confidence": 0.9563778042793274
+        },
+        {
+            "text": "835.00",
+            "bbox": [
+                [
+                    608,
+                    564
+                ],
+                [
+                    650,
+                    564
+                ],
+                [
+                    650,
+                    579
+                ],
+                [
+                    608,
+                    579
+                ]
+            ],
+            "confidence": 0.9988731741905212
+        },
+        {
+            "text": "Tax (18.0%)",
+            "bbox": [
+                [
+                    378,
+                    583
+                ],
+                [
+                    459,
+                    585
+                ],
+                [
+                    458,
+                    602
+                ],
+                [
+                    378,
+                    600
+                ]
+            ],
+            "confidence": 0.9351873993873596
+        },
+        {
+            "text": "150.30",
+            "bbox": [
+                [
+                    608,
+                    586
+                ],
+                [
+                    649,
+                    586
+                ],
+                [
+                    649,
+                    600
+                ],
+                [
+                    608,
+                    600
+                ]
+            ],
+            "confidence": 0.9973692893981934
+        },
+        {
+            "text": "Discount (10.0%):",
+            "bbox": [
+                [
+                    378,
+                    606
+                ],
+                [
+                    490,
+                    608
+                ],
+                [
+                    490,
+                    625
+                ],
+                [
+                    378,
+                    622
+                ]
+            ],
+            "confidence": 0.9941355586051941
+        },
+        {
+            "text": "-83.50",
+            "bbox": [
+                [
+                    609,
+                    604
+                ],
+                [
+                    652,
+                    607
+                ],
+                [
+                    651,
+                    625
+                ],
+                [
+                    608,
+                    622
+                ]
+            ],
+            "confidence": 0.9751532673835754
+        },
+        {
+            "text": "Total (EUR):",
+            "bbox": [
+                [
+                    378,
+                    627
+                ],
+                [
+                    457,
+                    627
+                ],
+                [
+                    457,
+                    644
+                ],
+                [
+                    378,
+                    644
+                ]
+            ],
+            "confidence": 0.9218273162841797
+        },
+        {
+            "text": "901.80",
+            "bbox": [
+                [
+                    607,
+                    629
+                ],
+                [
+                    650,
+                    629
+                ],
+                [
+                    650,
+                    644
+                ],
+                [
+                    607,
+                    644
+                ]
+            ],
+            "confidence": 0.9979999661445618
+        }
+    ]
+  }
+  
+}
